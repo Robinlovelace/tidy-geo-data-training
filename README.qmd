@@ -54,10 +54,12 @@ pkgs = c(
     "sf",
     "tidyverse",
     "geos",
-    "data.table"
+    "data.table",
+    "spData"
 )
 
 remotes::install_cran(pkgs)
+sapply(pkgs, require, character.only = TRUE)
 ```
 
 ## Introduction
@@ -65,6 +67,24 @@ remotes::install_cran(pkgs)
 The `tidyverse` is a collection of packages that provides a unified set of functions for data science.
 A good way to understand it is to get started with a small dataset.
 
-```{r}
+After loading the packages run the following commands to create an object called countries, containing countries whose centroids are within 200km of the Polish border:
 
+```{r}
+names(world) # check we have the data
+poland = world |>
+    filter(name_long == "Poland")
+cents = world |>
+    st_centroid()
+countries = cents[poland, , op = st_is_within_distance, dist = 2e5]
+countries_df = countries |>
+  select(name_long, pop, area_km2) |>
+  st_drop_geometry()
+```
+
+Don't worry about the syntax for now, we'll explain it later.
+The important thing is that we now have a data frame with three columns, representing the name, population and area of four countries.
+We can print out the contents of the data frame by typing its name (this is equivalent to `print(countries_df)`):
+
+```{r}
+countries_df
 ```

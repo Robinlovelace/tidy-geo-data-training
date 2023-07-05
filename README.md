@@ -68,14 +68,64 @@ pkgs = c(
     "sf",
     "tidyverse",
     "geos",
-    "data.table"
+    "data.table",
+    "spData"
 )
 
 remotes::install_cran(pkgs)
+sapply(pkgs, require, character.only = TRUE)
 ```
+
+            sf  tidyverse       geos data.table     spData 
+          TRUE       TRUE       TRUE       TRUE       TRUE 
 
 ## Introduction
 
 The `tidyverse` is a collection of packages that provides a unified set
 of functions for data science. A good way to understand it is to get
 started with a small dataset.
+
+After loading the packages run the following commands to create an
+object called countries, containing countries whose centroids are within
+200km of the Polish border:
+
+``` r
+names(world) # check we have the data
+```
+
+     [1] "iso_a2"    "name_long" "continent" "region_un" "subregion" "type"     
+     [7] "area_km2"  "pop"       "lifeExp"   "gdpPercap" "geom"     
+
+``` r
+poland = world |>
+    filter(name_long == "Poland")
+cents = world |>
+    st_centroid()
+```
+
+    Warning: st_centroid assumes attributes are constant over geometries
+
+``` r
+countries = cents[poland, , op = st_is_within_distance, dist = 2e5]
+countries_df = countries |>
+  select(name_long, pop, area_km2) |>
+  st_drop_geometry()
+```
+
+Don’t worry about the syntax for now, we’ll explain it later. The
+important thing is that we now have a data frame with three columns,
+representing the name, population and area of four countries. We can
+print out the contents of the data frame by typing its name (this is
+equivalent to `print(countries_df)`):
+
+``` r
+countries_df
+```
+
+    # A tibble: 4 × 3
+      name_long           pop area_km2
+    * <chr>             <dbl>    <dbl>
+    1 Poland         38011735  310402.
+    2 Lithuania       2932367   63831.
+    3 Slovakia        5418649   47068.
+    4 Czech Republic 10525347   81208.
