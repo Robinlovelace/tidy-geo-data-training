@@ -40,7 +40,7 @@ effectively within the wider context of project management tools,
 integrated development environments (we recommend VS Code with
 appropriate extensions or RStudio), and version control systems.
 
-## Learning outcomes
+## Learning objectives
 
 By the end of the session, participants will be able to:
 
@@ -53,6 +53,29 @@ By the end of the session, participants will be able to:
 - Understand the strengths and weaknesses of the `tidyverse` for
   geographic data analysis
 
-## Learning objectives
+## Prerequisites
 
-- 2023-08-28, 11:00–12:30, Room 21 (Sala 21)
+You need to have the following packages installed:
+
+``` r
+# Install remotes if not already installed
+if (!requireNamespace("remotes")) {
+    install.packages("remotes")
+}
+
+# The packages we'll use
+pkgs = c(
+    "sf",
+    "tidyverse",
+    "geos",
+    "data.table"
+)
+
+remotes::install_cran(pkgs)
+```
+
+## Introduction
+
+The `tidyverse` is a collection of packages that provides a unified set
+of functions for data science. A good way to understand it is to get
+started with a small dataset.
