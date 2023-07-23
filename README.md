@@ -16,7 +16,7 @@ the `tidyverse` metapackage. Why use the `sf` package with the
 `tidyverse`? The lecture will outline some of the ideas underlying the
 `tidyverse` and how they can speed-up data analysis pipelines, while
 making data analysis code easier to read and write. We will see how the
-following lines
+following lines:
 
 ``` r
 library(sf)
@@ -55,7 +55,21 @@ By the end of the session, participants will be able to:
 
 ## Prerequisites
 
-You need to have the following packages installed:
+We recommend you run the code in the practical session with a modern
+integrated development environment (IDE) such as
+
+- RStudio: an IDE focussed on data science and software development
+  with R. See [posit.co](https://posit.co/download/rstudio-desktop/) for
+  installation instructions.
+- VS Code: a general purpose, popular and future-proof IDE with support
+  for R. See
+  [github.com/REditorSupport/vscode-R](https://github.com/REditorSupport/vscode-R#getting-started)
+  and [quarto.org](https://quarto.org/docs/get-started/) for
+  installation instructions.
+
+After you have installed a suitable IDE you will need to install R
+packages used in this tutorial. You can install the packages we’ll use
+with the following commands:
 
 ``` r
 # Install remotes if not already installed
@@ -71,15 +85,20 @@ pkgs = c(
     "data.table",
     "spData"
 )
+```
 
+``` r
 remotes::install_cran(pkgs)
+```
+
+``` r
 sapply(pkgs, require, character.only = TRUE)
 ```
 
             sf  tidyverse       geos data.table     spData 
           TRUE       TRUE       TRUE       TRUE       TRUE 
 
-## Introduction
+## An introduction to the tidyverse
 
 The `tidyverse` is a collection of packages that provides a unified set
 of functions for data science. A good way to understand it is to get
@@ -99,14 +118,17 @@ names(world) # check we have the data
 ``` r
 poland = world |>
     filter(name_long == "Poland")
-cents = world |>
+world_centroids = world |>
     st_centroid()
 ```
 
     Warning: st_centroid assumes attributes are constant over geometries
 
 ``` r
-countries = cents[poland, , op = st_is_within_distance, dist = 2e5]
+country_centroids = world_centroids |>
+  st_filter(poland, .predicate = st_is_within_distance, dist = 2e5)
+countries = world |>
+  filter(name_long %in% country_centroids$name_long)
 countries_df = countries |>
   select(name_long, pop, area_km2) |>
   st_drop_geometry()
@@ -129,3 +151,23 @@ countries_df
     2 Lithuania       2932367   63831.
     3 Slovakia        5418649   47068.
     4 Czech Republic 10525347   81208.
+
+The output above shows information about each country in a tabular. A
+feature of the tidyverse is that its data frame class (the `tibble`
+which extends base R’s `data.frame` as shown below) prints results in an
+informative and space-efficient way.
+
+``` r
+class(countries_df)
+```
+
+    [1] "tbl_df"     "tbl"        "data.frame"
+
+## Exercises
+
+1.  Re-create the `country_centroids` object, using `world_centroids`
+    and `poland` and inputs, but this time using base R syntax with the
+    `[` operator.
+
+- Bonus: use the `bench::mark()` function to compare the performance of
+  the base R and tidyverse implementation
